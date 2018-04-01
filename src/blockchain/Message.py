@@ -31,6 +31,7 @@ class Message:
             raise InvalidMessage("交易数据与时间被修改" + str(self))
         if self.hash != self._hash_message():
             raise InvalidMessage("交易的哈希链被修改" + str(self))
+        return True
 
     def __repr__(self):
         mystr = "hash: {}, prev_hash: {}, data: {}".format(self.hash, self.prev_hash, self.data)
