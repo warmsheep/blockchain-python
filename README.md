@@ -1,2 +1,2 @@
 # blockchain-python
-区块链的练习项目
+基于python的区块链
