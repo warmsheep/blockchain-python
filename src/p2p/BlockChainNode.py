@@ -162,7 +162,7 @@ def index_mine():
     }
     return jsonify(response),200
 
-# 创建一个新的急哦阿姨
+# 创建一个新的交易
 @app.route("/new_trans",methods=["POST"])
 def index_new_trans():
     # 抓取网络传输的信息
@@ -170,11 +170,45 @@ def index_new_trans():
     required = ["sender","receiver","amount"]
     if not all(key in values for key in required):
         return "数据不完整",400
-    index = my_chain.new_trans(values["sender"],values["receiver"],values["amount"])
+    index = my_chain.new_trans(
+        values["sender"],
+        values["receiver"],
+        values["amount"])
 
     response = {
         "message" : f"交易加入到区块{index}"
     }
+    return jsonify(response),200
+
+@app.route("/new_node",methods = ["POST"])
+def new_node():
+    values = request.get_json()
+    nodes = values.get("nodes") #获取所有的节点
+    if nodes is None:
+        return "没有数据节点",400
+    for node in nodes:
+        my_chain.register_node(node)    #增加网络节点
+
+    response = {
+        "message" : f"网络节点已经被追加",
+        "nodes" : list(my_chain.nodes)     #查看所有节点
+    }
+    return jsonify(response),200
+
+@app.route("/node_refresh")
+def node_refresh():
+    replaced = my_chain.resolve_conflicts() #共识算法进行最长替换
+    if replaced:
+        response = {
+            "message" : "区块链已经被替换为最长",
+            "new_chain" : my_chain.chain
+        }
+
+    else:
+        response = {
+            "message": "当前区块链已经是最长无需替换",
+            "new_chain": my_chain.chain
+        }
     return jsonify(response),200
 
 if __name__ == "__main__":
